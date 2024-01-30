@@ -4,6 +4,7 @@ import java.util.ArrayList;
 import java.util.Collections;
 import java.util.List;
 import java.util.function.Function;
+import java.util.function.Supplier;
 
 /**
  * Implementation of ThreeSum which follows the approach of dividing the solution-space into
@@ -49,20 +50,31 @@ public class ThreeSumQuadraticWithCalipers implements ThreeSum {
     public static List<Triple> calipers(int[] a, int i, Function<Triple, Integer> function) {
         List<Triple> triples = new ArrayList<>();
         // TO BE IMPLEMENTED  : use function to qualify triples and to navigate otherwise.
+        int j = i + 1;
+        int k = a.length - 1;
+        while (j < k)
+        {
+            int sum =  a[i] + a[j] + a[k];
+            if (sum == 0)
+            {
+                triples.add(new Triple(a[i], a[j], a[k]));
+                j++;
+                k--;
+            }
+            else if (sum < 0)
+            {
+                j++;
+            }
+            else if (sum > 0)
+            {
+                k--;
+            }
 
+        }
+        //System.out.println(triples);
+        return triples;
 
-
-
-
-
-
-
-
-
-
-
-
-throw new RuntimeException("implementation missing");
+        //throw new RuntimeException("implementation missing");
     }
 
     private final int[] a;

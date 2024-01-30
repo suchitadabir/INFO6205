@@ -1,5 +1,6 @@
 package edu.neu.coe.info6205.threesum;
 
+import java.sql.Array;
 import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.Collections;
@@ -28,6 +29,7 @@ class ThreeSumQuadrithmic implements ThreeSum {
         List<Triple> triples = new ArrayList<>();
         for (int i = 0; i < length; i++)
             for (int j = i + 1; j < length; j++) {
+               // System.out.println("------For ("+a[i]+","+a[j]+")------");
                 Triple triple = getTriple(i, j);
                 if (triple != null) triples.add(triple);
             }
@@ -36,11 +38,21 @@ class ThreeSumQuadrithmic implements ThreeSum {
     }
 
     public Triple getTriple(int i, int j) {
+        //System.out.println(" | and -a[i]-a[j] = "+(-a[i] - a[j]));
         int index = Arrays.binarySearch(a, -a[i] - a[j]);
+       // System.out.println("Index "+index+" j : "+j);
         if (index >= 0 && index > j) return new Triple(a[i], a[j], a[index]);
         else return null;
     }
 
     private final int[] a;
     private final int length;
+    public static void main(String[] args) {
+        Triple trip[] =  new ThreeSumQuadrithmic(new int[]{-4,-1,-1,0,1,4}).getTriples();
+        for (Triple t: trip){
+            System.out.println(t.x+","+t.y+","+ t.z);
+        }
+    }
+
+
 }
