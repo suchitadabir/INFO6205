@@ -38,7 +38,11 @@ public class Benchmark_Timer<T> implements Benchmark<T> {
      * @return at least 2 and at most the lower of 6 or m/15.
      */
     static int getWarmupRuns(int m) {
-        return Integer.max(2, Integer.min(6, m / 15));
+       // return Integer.max(2, Integer.min(6, m / 15));
+        /* for each invocation of run, run the given target function
+         * ten times to get the system "warmed up" before you start the timing properly
+         */
+        return Integer.max(10, Integer.min(10, m / 15));
     }
 
     /**
