@@ -3,24 +3,19 @@
  */
 package edu.neu.coe.info6205.util;
 
-import edu.neu.coe.info6205.sort.BaseHelper;
-import edu.neu.coe.info6205.sort.Helper;
-import edu.neu.coe.info6205.sort.SortWithHelper;
-import edu.neu.coe.info6205.sort.elementary.BubbleSort;
-import edu.neu.coe.info6205.sort.elementary.InsertionSort;
-import edu.neu.coe.info6205.sort.elementary.RandomSort;
-import edu.neu.coe.info6205.sort.elementary.ShellSort;
+import edu.neu.coe.info6205.sort.*;
+import edu.neu.coe.info6205.sort.elementary.*;
 import edu.neu.coe.info6205.sort.linearithmic.TimSort;
 import edu.neu.coe.info6205.sort.linearithmic.*;
 
-import java.io.FileNotFoundException;
-import java.io.IOException;
+import java.io.*;
 import java.time.LocalDateTime;
 import java.time.chrono.ChronoLocalDateTime;
 import java.util.*;
 import java.util.function.Consumer;
 import java.util.function.Supplier;
 import java.util.function.UnaryOperator;
+import java.util.regex.Matcher;
 import java.util.regex.Pattern;
 import java.util.stream.Stream;
 
@@ -88,8 +83,13 @@ public class SortBenchmark {
         if (isConfigBenchmarkStringSorter("puresystemsort"))
             runPureSystemSortBenchmark(words, nWords, nRuns, random);
 
-        if (isConfigBenchmarkStringSorter("mergesort"))
-            runMergeSortBenchmark(words, nWords, nRuns, isConfigBenchmarkMergeSort("insurance"), isConfigBenchmarkMergeSort("nocopy"));
+        if (isConfigBenchmarkStringSorter("mergesort")) {
+            //runMergeSortBenchmark(words, nWords, nRuns, isConfigBenchmarkMergeSort("insurance"), isConfigBenchmarkMergeSort("nocopy"));
+            runMergeSortBenchmark(words, nWords, nRuns, false, false);
+            runMergeSortBenchmark(words, nWords, nRuns, false, true);
+            runMergeSortBenchmark(words, nWords, nRuns, true, false);
+            runMergeSortBenchmark(words, nWords, nRuns, true, true);
+        }
 
         if (isConfigBenchmarkStringSorter("quicksort3way"))
             runStringSortBenchmark(words, nWords, nRuns, new QuickSort_3way<>(nWords, config), timeLoggersLinearithmic);
@@ -99,6 +99,11 @@ public class SortBenchmark {
 
         if (isConfigBenchmarkStringSorter("quicksort"))
             runStringSortBenchmark(words, nWords, nRuns, new QuickSort_Basic<>(nWords, config), timeLoggersLinearithmic);
+
+        if (isConfigBenchmarkStringSorter("heapsort")) {
+            Helper<String> helper = HelperFactory.create("Heapsort", nWords, config);
+            runStringSortBenchmark(words, nWords, nRuns, new HeapSort<>(helper), timeLoggersLinearithmic);
+        }
 
         if (isConfigBenchmarkStringSorter("introsort"))
             runStringSortBenchmark(words, nWords, nRuns, new IntroSort<>(nWords, config), timeLoggersLinearithmic);
@@ -131,8 +136,13 @@ public class SortBenchmark {
 
         if (isConfigBenchmarkStringSorter("puresystemsort")) runPureSystemSortBenchmark(words, nWords, nRuns, random);
 
-        if (isConfigBenchmarkStringSorter("mergesort"))
-            runMergeSortBenchmark(words, nWords, nRuns, isConfigBenchmarkMergeSort("insurance"), isConfigBenchmarkMergeSort("nocopy"));
+        if (isConfigBenchmarkStringSorter("mergesort")) {
+            //runMergeSortBenchmark(words, nWords, nRuns, isConfigBenchmarkMergeSort("insurance"), isConfigBenchmarkMergeSort("nocopy"));
+            runMergeSortBenchmark(words, nWords, nRuns, false, false);
+            runMergeSortBenchmark(words, nWords, nRuns, false, true);
+            runMergeSortBenchmark(words, nWords, nRuns, true, false);
+            runMergeSortBenchmark(words, nWords, nRuns, true, true);
+        }
 
         if (isConfigBenchmarkStringSorter("quicksort3way"))
             runStringSortBenchmark(words, nWords, nRuns, new QuickSort_3way<>(nWords, config), timeLoggersLinearithmic);
@@ -142,6 +152,11 @@ public class SortBenchmark {
 
         if (isConfigBenchmarkStringSorter("quicksort"))
             runStringSortBenchmark(words, nWords, nRuns, new QuickSort_Basic<>(nWords, config), timeLoggersLinearithmic);
+
+        if (isConfigBenchmarkStringSorter("heapsort")) {
+            Helper<String> helper = HelperFactory.create("Heapsort", nWords, config);
+            runStringSortBenchmark(words, nWords, nRuns, new HeapSort<>(helper), timeLoggersLinearithmic);
+        }
 
         if (isConfigBenchmarkStringSorter("introsort"))
             runStringSortBenchmark(words, nWords, nRuns, new IntroSort<>(nWords, config), timeLoggersLinearithmic);
@@ -156,6 +171,26 @@ public class SortBenchmark {
         // NOTE: this is very slow of course, so recommendation is not to enable this option.
         if (isConfigBenchmarkStringSorter("bubblesort"))
             runStringSortBenchmark(words, nWords, nRuns / 10, new BubbleSort<>(nWords, config), timeLoggersQuadratic);
+    }
+
+    public static String parseStatPack(String statPack) {
+        // Remove the '{' and '}' at the beginning and end of the string, if present
+        String cleanStatPack = statPack.replaceAll("[{}]", "");
+        // Match all occurrences of numbers, which could include commas, decimals, and digits
+        Pattern pattern = Pattern.compile("(\\d{1,3}(?:,\\d{3})*(?:\\.\\d+)?)");
+        Matcher matcher = pattern.matcher(cleanStatPack);
+
+        StringBuilder csvBuilder = new StringBuilder();
+        while (matcher.find()) {
+            // Append the matched number to the CSV string, remove all commas from numbers
+            String match = matcher.group(1).replace(",", "");
+            csvBuilder.append(match);
+            if (!matcher.hitEnd()) {
+                csvBuilder.append(",");
+            }
+        }
+
+        return csvBuilder.toString();
     }
 
     private static void runPureSystemSortBenchmark(String[] words, int nWords, int nRuns, Random random) {
@@ -206,8 +241,37 @@ public class SortBenchmark {
      * @param timeLoggers  a set of timeLoggers to be used.
      */
     static void runStringSortBenchmark(String[] words, int nWords, int nRuns, SortWithHelper<String> sorter, UnaryOperator<String[]> preProcessor, TimeLogger[] timeLoggers) {
-        new SorterBenchmark<>(String.class, preProcessor, sorter, words, nRuns, timeLoggers).run(nWords);
+        final double time = new SorterBenchmark<>(String.class, preProcessor, sorter, words, nRuns, timeLoggers).run(nWords);
+        //sorter.close();
+        String content;
+        String description = sorter.getHelper().getDescription();
+        boolean instrumented = sorter.getHelper().getConfig().isInstrumented();
+        boolean insurance = false;
+        boolean nocopy = false;
+        if (description.contains("MergeSort")) {
+            insurance = sorter.getHelper().getConfig().getBoolean("mergesort", "insurance");
+            nocopy = sorter.getHelper().getConfig().getBoolean("mergesort", "nocopy");
+        }
+        if (instrumented) {
+            InstrumentedHelper instruHelper = (InstrumentedHelper) sorter.getHelper();
+            content = description + "," + String.valueOf(instrumented) + "," + String.valueOf(insurance) + "," + String.valueOf(nocopy) + "," + String.valueOf(nWords) + "," + String.valueOf(words.length) + "," + String.valueOf(nRuns) + "," + String.valueOf(time) + "," + String.valueOf(((time / minComparisons(nWords)) / 6 * 1e6)) + "," + parseStatPack(instruHelper.getStatPack().toString());
+        } else {
+            content = description + "," + String.valueOf(instrumented) + "," + String.valueOf(insurance) + "," + String.valueOf(nocopy) + "," + String.valueOf(nWords) + "," + String.valueOf(words.length) + "," + String.valueOf(nRuns) + "," + String.valueOf(time) + "," + String.valueOf(((time / minComparisons(nWords)) / 6 * 1e6));
+        }
+        logger.info("CSV LOG: " + content);
         sorter.close();
+        //String csvHeader = "sorter,instrumented,insurance,nocopy,nWords,wordLength,nRuns,rawTime,normTime,hitsMean,hitsStdev,hitsNorm,copies,copiesNorm,swapsMean,swapsStdev,swapsNorm,comparesMean,comparesStdev,comparesNorm";
+        FileOutputStream fis = null;
+        try {
+            fis = new FileOutputStream("./src/Assignment6.csv", true);
+            OutputStreamWriter isr = new OutputStreamWriter(fis);
+            BufferedWriter bw = new BufferedWriter(isr);
+            bw.write(content + "\n");
+            bw.flush();
+            bw.close();
+        } catch (IOException e) {
+            e.printStackTrace();
+        }
     }
 
     /**
@@ -339,9 +403,10 @@ public class SortBenchmark {
     }
 
     private void doLeipzigBenchmark(String resource, int nWords, int nRuns) throws FileNotFoundException {
-        benchmarkStringSorters(getWords(resource, SortBenchmark::getLeipzigWords), nWords, nRuns);
+        //benchmarkStringSorters(getWords(resource, SortBenchmark::getLeipzigWords), nWords, nRuns);
         if (isConfigBoolean(Config.HELPER, BaseHelper.INSTRUMENT))
             benchmarkStringSortersInstrumented(getWords(resource, SortBenchmark::getLeipzigWords), nWords, nRuns);
+        else benchmarkStringSorters(getWords(resource, SortBenchmark::getLeipzigWords), nWords, nRuns);
     }
 
     @SuppressWarnings("SameParameterValue")
