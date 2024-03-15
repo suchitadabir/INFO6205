@@ -30,6 +30,17 @@ df.loc[df['sorter'].str.startswith('MergeSort'), 'sortAlgo'] = "MergeSort"
 df.loc[df['sorter'].str.startswith('QuickSort'), 'sortAlgo'] = "QuickSort"
 df.loc[df['sorter'].str.startswith('Heapsort'), 'sortAlgo'] = "HeapSort"
 print(df)
+
+df_corr = df.loc[df['instrumented'] == True]
+df_corr = df_corr[(df_corr['sortAlgo'] != 'MergeSort') | ((df_corr['sortAlgo'] == 'MergeSort') & (df_corr['insurance'] == True) & (df_corr['nocopy'] == True))]
+df_corr["hitslog"] = np.log2(df_corr["hitsMean"])
+df_corr["compareslog"] = np.log2(df_corr["comparesMean"])
+df_corr["swapslog"] = np.log2(df_corr["swapsMean"])
+df_corr["timelog"] = np.log2(df_corr["rawTime"])
+print("Time Correlation with Hits",df_corr['timelog'].corr(df_corr['hitslog']))
+print("Time Correlation with Compares",df_corr['timelog'].corr(df_corr['compareslog']))
+print("Time Correlation with Swaps",df_corr['timelog'].corr(df_corr['swapslog']))
+
 formatted_csv = os.path.join(file_dir, os.path.basename(file_path))
 df.to_csv(formatted_csv.replace(".csv", "Formatted.csv"), index=False)
 
