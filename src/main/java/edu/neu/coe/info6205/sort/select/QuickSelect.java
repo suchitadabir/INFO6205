@@ -54,8 +54,8 @@ public class QuickSelect<X extends Comparable<X>> {
                 else if (helper.compare(xs, i, v2) > 0) helper.swap(xs, i, gt--);
                 else i++;
             }
-            helper.swap(xs, p1, lt - 1);
-            helper.swap(xs, p2, gt + 1);
+            helper.swap(xs, p1, --lt);
+            helper.swap(xs, p2, ++gt);
         } else {
             while (i <= gt) {
                 X x = xs[i];
@@ -63,15 +63,15 @@ public class QuickSelect<X extends Comparable<X>> {
                 else if (x.compareTo(v2) > 0) swap(xs, i, gt--);
                 else i++;
             }
-            swap(xs, p1, lt - 1);
-            swap(xs, p2, gt + 1);
+            swap(xs, p1, --lt);
+            swap(xs, p2, ++gt);
         }
 
         /*List<Partition<X>> partitions = new ArrayList<>();
         partitions.add(new Partition<>(xs, p1, lt));
         partitions.add(new Partition<>(xs, lt + 1, gt));
         partitions.add(new Partition<>(xs, gt + 1, p2 + 1));*/
-        return new int[]{lt - 1, gt + 1};
+        return new int[]{lt, gt};
     }
 
     /***

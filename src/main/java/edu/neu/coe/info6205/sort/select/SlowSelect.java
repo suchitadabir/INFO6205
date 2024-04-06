@@ -35,10 +35,8 @@ public class SlowSelect <X extends Comparable<X>>{
         //X[] kArray =  (X[]) new Object[k];
         //X[] kArray =  (X[]) Array.newInstance(a.getClass(), k);
         X[] kArray = Arrays.copyOf(a, k);
+        Arrays.fill(kArray,null);
 
-        for (int i = 0; i < k; i++) {
-            kArray[i] = null;
-        }
         for (X x : a) {
             for (int i = k - 1; i >= 0; i--) {
                 if (kArray[i] == null || kArray[i].compareTo(x) > 0) {
