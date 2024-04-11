@@ -17,6 +17,8 @@ df = df.loc[df['Array-Ordering'] == "RANDOM"]
 # Create a seaborn plot
 plt.figure()
 sns.lineplot(data=df, x='N', y='Time', hue='Method', marker='o')
+plt.xscale('log', base=2)
+plt.yscale('log', base=2)
 
 # Adding titles and labels
 plt.title('Time taken by QuickSelect vs. SlowSelect')
